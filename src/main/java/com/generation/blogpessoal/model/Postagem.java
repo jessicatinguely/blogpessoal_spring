@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,59 +19,92 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "tb_postagens") // CREATE TABLE tb_postagens 
+@Table(name = "tb_postagens") // CREATE TABLE tb_postagens
 public class Postagem {
-	
+
 	@Id // PRIMARY KEY (id)
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
 	private Long id;
-	
+
 	@Column(length = 100) // DEFINE O TAMANHO DA COLUNA
 	@NotBlank(message = "O atributo título é obrigatório!") // NOT NULL)
 	@Size(min = 5, max = 100, message = "O atributo título deve conter no mínimo 05 e no máximo 100 caracteres")
 	private String titulo;
-	
+
 	@Column(length = 1000) // DEFINE O TAMANHO DA COLUNA
 	@NotBlank(message = "O atributo texto é obrigatório!") // NOT NULL)
 	@Size(min = 10, max = 1000, message = "O atributo texto deve conter no mínimo 10 e no máximo 1000 caracteres")
 	private String texto;
-	
+
 	@UpdateTimestamp // ATUALIZA A DATA E HORA AUTOMATICAMENTE
 	private LocalDateTime data;
-	
+
+	@Column(length = 1) // DEFINE O TAMANHO DA COLUNA)
+	@Enumerated(EnumType.STRING) // DEFINE QUE O ATRIBUTO É UM ENUM ( STRING <> ORDINAL )
+	OrigemPostagem origem = OrigemPostagem.C; // VALOR DEFAULT
+
 	@ManyToOne
 	@JsonIgnoreProperties("postagem")
 	private Tema tema;
 	
+	@ManyToOne
+	@JsonIgnoreProperties("postagem")
+	private Usuario usuario;
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public String getTitulo() {
 		return titulo;
 	}
+
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
 	}
+
 	public String getTexto() {
 		return texto;
 	}
+
 	public void setTexto(String texto) {
 		this.texto = texto;
 	}
+
 	public LocalDateTime getData() {
 		return data;
 	}
+
 	public void setData(LocalDateTime data) {
 		this.data = data;
 	}
+
 	public Tema getTema() {
 		return tema;
 	}
+
 	public void setTema(Tema tema) {
 		this.tema = tema;
 	}
 
+	public void setOrigem(OrigemPostagem origem) {
+		this.origem = origem;
+	}
+
+	public OrigemPostagem getOrigem() {
+		return origem;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+	
 }

@@ -1,3 +1,15 @@
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+**/.DS_Store
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
