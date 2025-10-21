@@ -79,6 +79,5 @@ public class UsuarioController {
 
 		usuarioService.deletarUsuario(usuario.get()); // se encontrar o id, deleta o usuario
 
-	
 	}
 }
