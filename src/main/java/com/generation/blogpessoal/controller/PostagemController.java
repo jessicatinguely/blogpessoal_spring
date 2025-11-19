@@ -21,6 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.generation.blogpessoal.model.Postagem;
 import com.generation.blogpessoal.repository.PostagemRepository;
 import com.generation.blogpessoal.repository.TemaRepository;
+import com.generation.blogpessoal.repository.UsuarioRepository;
+
 
 import jakarta.validation.Valid;
 
@@ -37,6 +39,10 @@ public class PostagemController {
 
 	@Autowired
 	private TemaRepository temaRepository;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+
 
 	@GetMapping
 	public ResponseEntity<List<Postagem>> getAll() {
@@ -68,42 +74,51 @@ public class PostagemController {
 	@PostMapping
 	public ResponseEntity<Postagem> post(@Valid @RequestBody Postagem postagem) {
 
-		if (temaRepository.existsById(postagem.getTema().getId())) { // verifica se o tema existe no banco de dados
+	    if (postagem.getTema() == null || postagem.getTema().getId() == null) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não foi informado!", null);
+	    }
 
-			postagem.setId(null); // garante que o id seja nulo para criar uma nova postagem
+	    if (!temaRepository.existsById(postagem.getTema().getId())) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
+	    }
 
-			return ResponseEntity.status(HttpStatus.CREATED).body(postagemRepository.save(postagem)); // salva a
-																										// postagem e
-																										// retorna o
-																										// status 201
-																										// (CREATED)
+	    if (postagem.getUsuario() == null || postagem.getUsuario().getId() == null) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não foi informado!", null);
+	    }
 
-		}
+	    if (!usuarioRepository.existsById(postagem.getUsuario().getId())) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não existe!", null);
+	    }
 
-		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null); // se o tema não existir,
-																								// retorna o status 400
-																								// (BAD REQUEST)
+	    postagem.setId(null);
+
+	    return ResponseEntity.status(HttpStatus.CREATED)
+	            .body(postagemRepository.save(postagem));
 	}
+
 
 	@PutMapping
 	public ResponseEntity<Postagem> put(@Valid @RequestBody Postagem postagem) {
 
-		if (postagemRepository.existsById(postagem.getId())) { // verifica se o id existe no banco de dados
+	    if (postagemRepository.existsById(postagem.getId())) { // verifica se o id existe no banco de dados
 
-			if (temaRepository.existsById(postagem.getTema().getId())) { // verifica se o tema existe no banco de dados
+	        if (temaRepository.existsById(postagem.getTema().getId())) { // verifica se o tema existe no banco de dados
 
-				return ResponseEntity.status(HttpStatus.OK).body(postagemRepository.save(postagem));
-				// se encontrar o id e o tema, atualiza a postagem e retorna o status OK
-			}
+	            if (usuarioRepository.existsById(postagem.getUsuario().getId())) { // verifica se o usuário existe
 
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null); // se o tema não
-																									// existir, retorna
-																									// o status 400 (BAD
-																									// REQUEST)
-		}
+	                return ResponseEntity.status(HttpStatus.OK)
+	                        .body(postagemRepository.save(postagem));
+	            }
 
-		return ResponseEntity.notFound().build(); // se não encontrar o id da postagem, retorna o status 404 (NOT FOUND)
+	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não existe!", null);
+	        }
+
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
+	    }
+
+	    return ResponseEntity.notFound().build(); // se não encontrar o id da postagem
 	}
+
 
 	@ResponseStatus(HttpStatus.NO_CONTENT) // retorna o status 204 (NO CONTENT)
 	@DeleteMapping("/{id}")
